@@ -2,8 +2,13 @@ import sys
 from pathlib import Path
 import shutil
 
-CATEGORIES = {"Audio": [".mp3", ".wav", ".flac", ".wma"],
-              "Docs": [".docx", ".txt", ".pdf"]}
+CATEGORIES = {
+    "Audio": [".mp3", ".wav", ".flac", ".wma"],
+    "Docs": [".docx", ".txt", ".pdf"],
+    "Pictures": [".png", ".jpg", ".jpeg", ".svg"],
+    "Video": [".avi", ".mp4", ".mov", ".mkv"],
+    "Archives": [".zip", ".tar"],
+}
 
 
 def get_categories(file: Path) -> str:
@@ -15,13 +20,13 @@ def get_categories(file: Path) -> str:
 
 
 def move_file(file: Path, category: str, root_dir: Path) -> None:
-    target_dir = root_dir.joinpath(category)
+    target_dir = root_dir / category
     if not target_dir.exists():
         target_dir.mkdir()
-    normalized_name = normalize(file.name)
-    new_path = target_dir.joinpath(normalized_name)
+    normalized_name = normalize(file.stem) + file.suffix.lower()
+    new_path = target_dir / normalized_name
     if not new_path.exists():
-        file.replace(new_path)
+        file.rename(new_path)
 
 
 def unpack_archives(archive_file: Path, root_dir: Path) -> None:
@@ -55,7 +60,6 @@ def normalize(input_string):
             result += char
         else:
             result += '_'
-
     return result
 
 
@@ -66,7 +70,7 @@ def sort_folder(path: Path) -> None:
             move_file(element, category, path)
         elif element.is_dir():
             normalized_name = normalize(element.name)
-            new_path = element.parent.joinpath(normalized_name)
+            new_path = element.parent / normalized_name
             if not new_path.exists():
                 element.rename(new_path)
 
@@ -78,7 +82,7 @@ def main() -> str:
         return "No path to folder"
 
     if not path.exists():
-        return "Folder dos not exists"
+        return "Folder does not exist"
 
     sort_folder(path)
 
@@ -86,4 +90,4 @@ def main() -> str:
 
 
 if __name__ == '__main__':
-    main()
+    print(main())
