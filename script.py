@@ -68,10 +68,7 @@ def sort_folder(path: Path) -> None:
         if element.is_file():
             category = get_categories(element)
             move_file(element, category, path)
-            if element.suffix.lower() in [".zip", ".tar"]:
-                unpack_archives(element, path)  # Розпаковка архівів
         elif element.is_dir():
-            sort_folder(element)
             normalized_name = normalize(element.name)
             new_path = element.parent / normalized_name
             if not new_path.exists():
@@ -87,22 +84,9 @@ def main() -> str:
     if not path.exists():
         return "Folder does not exist"
 
-    extensions_found = set()  # Зберігає всі знайдені розширення
     sort_folder(path)
 
-    for element in path.glob("**/*"):
-        if element.is_file():
-            ext = element.suffix.lower()
-            extensions_found.add(ext)
-
-    known_extensions = {ext for exts in CATEGORIES.values() for ext in exts}
-    unknown_extensions = extensions_found - known_extensions
-
-    result = "All Ok\n"
-    result += "Known extensions found: {}\n".format(known_extensions)
-    result += "Unknown extensions found: {}\n".format(unknown_extensions)
-
-    return result
+    return "All Ok"
 
 
 if __name__ == '__main__':
