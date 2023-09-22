@@ -20,15 +20,15 @@ def get_categories(file: Path) -> str:
 
 
 def move_file(file: Path, category: str, root_dir: Path) -> None:
-    if category == "Archives":
-        unpack_archives(file, root_dir)
-        return
     target_dir = root_dir / category
     if not target_dir.exists():
         target_dir.mkdir(parents=True)
     new_path = target_dir / file.name
-    if not new_path.exists():
-        file.rename(new_path)
+    # if not new_path.exists():
+    new_path = file.replace(new_path)
+    if category == "Archives":
+        unpack_archives(new_path, target_dir.joinpath(new_path.stem))
+        # return
 
 
 def unpack_archives(archive_file: Path, root_dir: Path) -> None:
@@ -66,15 +66,20 @@ def normalize(input_string):
 
 
 def sort_folder(path: Path) -> None:
-    for element in path.glob("**/*"):
+    for element in list(path.glob("**/*"))[::-1]:
         if element.is_file():
             category = get_categories(element)
             move_file(element, category, path)
-        elif element.is_dir():
-            normalized_name = normalize(element.name)
-            new_path = path / normalized_name  # Змінено шлях до нової директорії
-            if not new_path.exists():
-                element.rename(new_path)
+        else:
+            try:
+                element.rmdir()
+            except OSError:
+                ...
+        # elif element.is_dir():
+        #     normalized_name = normalize(element.name)
+        #     new_path = path / normalized_name  # Змінено шлях до нової директорії
+        #     if not new_path.exists():
+        #         element.rename(new_path)
 
 
 def main() -> str:
